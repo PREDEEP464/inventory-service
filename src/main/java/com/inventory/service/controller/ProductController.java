@@ -2,10 +2,10 @@ package com.inventory.service.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import com.inventory.service.model.entity.vo.ProductVo;
 import com.inventory.service.service.ProductService;
@@ -27,25 +27,39 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductVo> createProduct(
+    public ResponseEntity<Map<String, Object>> createProduct(
             @Valid @RequestBody ProductVo productVo) {
+
+        ProductVo createdProduct = productService.createProduct(productVo);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(productService.createProduct(productVo));
+                .body(
+                        Map.of(
+                                "message", "Product created successfully",
+                                "data", createdProduct
+                        )
+                );
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<ProductVo> updateProduct(
+    public ResponseEntity<Map<String, Object>> updateProduct(
             @PathVariable Long productId,
             @Valid @RequestBody ProductVo productVo) {
 
+        ProductVo updatedProduct =
+                productService.updateProduct(productId, productVo);
+
         return ResponseEntity.ok(
-                productService.updateProduct(productId, productVo)
+                Map.of(
+                        "message", "Product updated successfully",
+                        "data", updatedProduct
+                )
         );
     }
 
-    // Not use anymore as this is already done inside the filter part
+    // Not used anymore as this is already done inside the filter part
+
 //    @GetMapping
 //    public ResponseEntity<List<ProductVo>> getAllProducts() {
 //
@@ -63,7 +77,6 @@ public class ProductController {
             @RequestParam(required = false) String name,
             Pageable pageable) {
 
-
         return ResponseEntity.ok(
                 productService.filterProducts(
                         categoryId,
@@ -77,7 +90,9 @@ public class ProductController {
     }
 
     @GetMapping("/category/{categoryId}")
-    public List<ProductVo> getProductsByCategory(@PathVariable Long categoryId) {
+    public List<ProductVo> getProductsByCategory(
+            @PathVariable Long categoryId) {
+
         return productService.getProductsByCategory(categoryId);
     }
 
@@ -93,7 +108,10 @@ public class ProductController {
             @RequestParam BigDecimal minPrice,
             @RequestParam BigDecimal maxPrice) {
 
-        return productService.getProductsByPriceRange(minPrice, maxPrice);
+        return productService.getProductsByPriceRange(
+                minPrice,
+                maxPrice
+        );
     }
 
     @GetMapping("/search")
@@ -113,10 +131,15 @@ public class ProductController {
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Void> deleteProduct(
+    public ResponseEntity<Map<String, String>> deleteProduct(
             @PathVariable Long productId) {
 
         productService.deleteProduct(productId);
-        return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message", "Product deleted successfully"
+                )
+        );
     }
 }

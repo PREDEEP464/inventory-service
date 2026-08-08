@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -20,21 +21,35 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryVo> createCategory(
+    public ResponseEntity<Map<String, Object>> createCategory(
             @Valid @RequestBody CategoryVo categoryVo) {
+
+        CategoryVo createdCategory =
+                categoryService.createCategory(categoryVo);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(categoryService.createCategory(categoryVo));
+                .body(
+                        Map.of(
+                                "message", "Category created successfully",
+                                "data", createdCategory
+                        )
+                );
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<CategoryVo> updateCategory(
+    public ResponseEntity<Map<String, Object>> updateCategory(
             @PathVariable Long categoryId,
             @Valid @RequestBody CategoryVo categoryVo) {
 
+        CategoryVo updatedCategory =
+                categoryService.updateCategory(categoryId, categoryVo);
+
         return ResponseEntity.ok(
-                categoryService.updateCategory(categoryId, categoryVo)
+                Map.of(
+                        "message", "Category updated successfully",
+                        "data", updatedCategory
+                )
         );
     }
 
@@ -56,10 +71,15 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<Void> deleteCategory(
+    public ResponseEntity<Map<String, String>> deleteCategory(
             @PathVariable Long categoryId) {
 
         categoryService.deleteCategory(categoryId);
-        return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message", "Category deleted successfully"
+                )
+        );
     }
 }
