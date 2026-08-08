@@ -12,7 +12,7 @@ public class ProductSpecification {
 
     public static Specification<Product> filterProducts(
             Long categoryId,
-            String status,
+            Boolean isActive,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             String name) {
@@ -30,11 +30,11 @@ public class ProductSpecification {
                 );
             }
 
-            if (status != null && !status.isBlank()) {
+            if (isActive != null) {
                 predicates.add(
                         criteriaBuilder.equal(
-                                root.get("status"),
-                                status
+                                root.get("isActive"),
+                                isActive
                         )
                 );
             }

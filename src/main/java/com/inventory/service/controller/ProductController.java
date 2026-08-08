@@ -57,7 +57,7 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<Page<ProductVo>> getAllProducts(
             @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Boolean isActive,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) String name,
@@ -67,7 +67,7 @@ public class ProductController {
         return ResponseEntity.ok(
                 productService.filterProducts(
                         categoryId,
-                        status,
+                        isActive,
                         minPrice,
                         maxPrice,
                         name,
@@ -81,9 +81,11 @@ public class ProductController {
         return productService.getProductsByCategory(categoryId);
     }
 
-    @GetMapping("/status/{status}")
-    public List<ProductVo> getProductsByStatus(@PathVariable String status) {
-        return productService.getProductsByStatus(status);
+    @GetMapping("/active/{isActive}")
+    public List<ProductVo> getProductsByIsActive(
+            @PathVariable Boolean isActive) {
+
+        return productService.getProductsByIsActive(isActive);
     }
 
     @GetMapping("/price-range")

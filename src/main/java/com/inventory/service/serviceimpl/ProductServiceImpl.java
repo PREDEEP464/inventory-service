@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
         product.setProductPrice(productVo.getProductPrice());
         product.setTotalQuantity(productVo.getTotalQuantity());
         product.setAvailableQuantity(productVo.getAvailableQuantity());
-        product.setStatus(productVo.getStatus());
+        product.setIsActive(productVo.getIsActive());
 
         Product savedProduct = productRepository.save(product);
 
@@ -66,7 +66,7 @@ public class ProductServiceImpl implements ProductService {
         product.setProductPrice(productVo.getProductPrice());
         product.setTotalQuantity(productVo.getTotalQuantity());
         product.setAvailableQuantity(productVo.getAvailableQuantity());
-        product.setStatus(productVo.getStatus());
+        product.setIsActive(productVo.getIsActive());
 
         Product updatedProduct = productRepository.save(product);
 
@@ -110,9 +110,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductVo> getProductsByStatus(String status) {
+    public List<ProductVo> getProductsByIsActive(Boolean isActive) {
 
-        return productRepository.findByStatus(status)
+        return productRepository.findByIsActive(isActive)
                 .stream()
                 .map(this::convertToVo)
                 .toList();
@@ -143,7 +143,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductVo> filterProducts(
             Long categoryId,
-            String status,
+            Boolean isActive,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             String name,
@@ -152,7 +152,7 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> productPage = productRepository.findAll(
                 ProductSpecification.filterProducts(
                         categoryId,
-                        status,
+                        isActive,
                         minPrice,
                         maxPrice,
                         name
@@ -174,7 +174,7 @@ public class ProductServiceImpl implements ProductService {
                 .productPrice(product.getProductPrice())
                 .totalQuantity(product.getTotalQuantity())
                 .availableQuantity(product.getAvailableQuantity())
-                .status(product.getStatus())
+                .isActive(product.getIsActive())
                 .build();
     }
 }

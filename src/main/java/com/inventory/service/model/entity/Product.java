@@ -58,8 +58,8 @@ public class Product {
     @Column(name = "available_quantity", nullable = false)
     private Integer availableQuantity;
 
-    @Column(name = "status", nullable = false, length = 30)
-    private String status;
+    @Column(name = "is_active", nullable = false, length = 30)
+    private Boolean isActive;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

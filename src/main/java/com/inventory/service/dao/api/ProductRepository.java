@@ -14,7 +14,7 @@ public interface ProductRepository
 
     List<Product> findByCategoryCategoryId(Long categoryId);
 
-    List<Product> findByStatus(String status);
+    List<Product> findByIsActive(Boolean isActive);
 
     List<Product> findByProductPriceBetween(
             BigDecimal minPrice,

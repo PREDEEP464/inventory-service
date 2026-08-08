@@ -20,7 +20,7 @@ public interface ProductService {
 
     List<ProductVo> getProductsByCategory(Long categoryId);
 
-    List<ProductVo> getProductsByStatus(String status);
+    List<ProductVo> getProductsByIsActive(Boolean isActive);
 
     List<ProductVo> getProductsByPriceRange(
             BigDecimal minPrice,
@@ -31,7 +31,7 @@ public interface ProductService {
 
     Page<ProductVo> filterProducts(
             Long categoryId,
-            String status,
+            Boolean isActive,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             String name,

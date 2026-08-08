@@ -43,7 +43,6 @@ public class ProductVo {
     @Min(value = 0, message = "Available quantity cannot be negative")
     private Integer availableQuantity;
 
-    @NotBlank(message = "Product status is required")
-    @Size(max = 30, message = "Product status must not exceed 30 characters")
-    private String status;
+    @NotNull(message = "Product status is required")
+    private Boolean isActive;
 }
