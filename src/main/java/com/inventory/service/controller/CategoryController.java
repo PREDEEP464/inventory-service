@@ -1,14 +1,16 @@
 package com.inventory.service.controller;
 
+import com.inventory.service.model.entity.vo.ApiResponse;
 import com.inventory.service.model.entity.vo.CategoryVo;
 import com.inventory.service.service.CategoryService;
+
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -21,7 +23,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createCategory(
+    public ResponseEntity<ApiResponse<CategoryVo>> createCategory(
             @Valid @RequestBody CategoryVo categoryVo) {
 
         CategoryVo createdCategory =
@@ -30,15 +32,15 @@ public class CategoryController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        Map.of(
-                                "message", "Category created successfully",
-                                "data", createdCategory
+                        new ApiResponse<>(
+                                "Category created successfully",
+                                createdCategory
                         )
                 );
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<Map<String, Object>> updateCategory(
+    public ResponseEntity<ApiResponse<CategoryVo>> updateCategory(
             @PathVariable Long categoryId,
             @Valid @RequestBody CategoryVo categoryVo) {
 
@@ -46,39 +48,46 @@ public class CategoryController {
                 categoryService.updateCategory(categoryId, categoryVo);
 
         return ResponseEntity.ok(
-                Map.of(
-                        "message", "Category updated successfully",
-                        "data", updatedCategory
+                new ApiResponse<>(
+                        "Category updated successfully",
+                        updatedCategory
                 )
         );
     }
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<CategoryVo> getCategoryById(
+    public ResponseEntity<ApiResponse<CategoryVo>> getCategoryById(
             @PathVariable Long categoryId) {
 
         return ResponseEntity.ok(
-                categoryService.getCategoryById(categoryId)
+                new ApiResponse<>(
+                        "Category fetched successfully",
+                        categoryService.getCategoryById(categoryId)
+                )
         );
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryVo>> getAllCategories() {
+    public ResponseEntity<ApiResponse<List<CategoryVo>>> getAllCategories() {
 
         return ResponseEntity.ok(
-                categoryService.getAllCategories()
+                new ApiResponse<>(
+                        "Categories fetched successfully",
+                        categoryService.getAllCategories()
+                )
         );
     }
 
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<Map<String, String>> deleteCategory(
+    public ResponseEntity<ApiResponse<Void>> deleteCategory(
             @PathVariable Long categoryId) {
 
         categoryService.deleteCategory(categoryId);
 
         return ResponseEntity.ok(
-                Map.of(
-                        "message", "Category deleted successfully"
+                new ApiResponse<>(
+                        "Category deleted successfully",
+                        null
                 )
         );
     }

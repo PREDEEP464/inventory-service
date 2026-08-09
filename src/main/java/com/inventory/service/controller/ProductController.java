@@ -5,12 +5,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 import com.inventory.service.model.entity.vo.ProductVo;
 import com.inventory.service.model.entity.vo.StockUpdateVo;
+import com.inventory.service.model.entity.vo.ApiResponse;
 import com.inventory.service.service.ProductService;
+
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +30,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createProduct(
+    public ResponseEntity<ApiResponse<ProductVo>> createProduct(
             @Valid @RequestBody ProductVo productVo) {
 
         ProductVo createdProduct = productService.createProduct(productVo);
@@ -36,15 +38,15 @@ public class ProductController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        Map.of(
-                                "message", "Product created successfully",
-                                "data", createdProduct
+                        new ApiResponse<>(
+                                "Product created successfully",
+                                createdProduct
                         )
                 );
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<Map<String, Object>> updateProduct(
+    public ResponseEntity<ApiResponse<ProductVo>> updateProduct(
             @PathVariable Long productId,
             @Valid @RequestBody ProductVo productVo) {
 
@@ -52,25 +54,16 @@ public class ProductController {
                 productService.updateProduct(productId, productVo);
 
         return ResponseEntity.ok(
-                Map.of(
-                        "message", "Product updated successfully",
-                        "data", updatedProduct
+                new ApiResponse<>(
+                        "Product updated successfully",
+                        updatedProduct
                 )
         );
     }
 
-    // Not used anymore as this is already done inside the filter part
-
-//    @GetMapping
-//    public ResponseEntity<List<ProductVo>> getAllProducts() {
-//
-//        return ResponseEntity.ok(
-//                productService.getAllProducts()
-//        );
-//    }
-
+    // Filter + Pagination
     @GetMapping
-    public ResponseEntity<Page<ProductVo>> getAllProducts(
+    public ResponseEntity<ApiResponse<Page<ProductVo>>> getAllProducts(
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Boolean isActive,
             @RequestParam(required = false) BigDecimal minPrice,
@@ -78,61 +71,89 @@ public class ProductController {
             @RequestParam(required = false) String name,
             Pageable pageable) {
 
+        Page<ProductVo> products = productService.filterProducts(
+                categoryId,
+                isActive,
+                minPrice,
+                maxPrice,
+                name,
+                pageable
+        );
+
         return ResponseEntity.ok(
-                productService.filterProducts(
-                        categoryId,
-                        isActive,
-                        minPrice,
-                        maxPrice,
-                        name,
-                        pageable
+                new ApiResponse<>(
+                        "Products fetched successfully",
+                        products
                 )
         );
     }
 
     @GetMapping("/category/{categoryId}")
-    public List<ProductVo> getProductsByCategory(
+    public ResponseEntity<ApiResponse<List<ProductVo>>> getProductsByCategory(
             @PathVariable Long categoryId) {
 
-        return productService.getProductsByCategory(categoryId);
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Products fetched successfully",
+                        productService.getProductsByCategory(categoryId)
+                )
+        );
     }
 
     @GetMapping("/active/{isActive}")
-    public List<ProductVo> getProductsByIsActive(
+    public ResponseEntity<ApiResponse<List<ProductVo>>> getProductsByIsActive(
             @PathVariable Boolean isActive) {
 
-        return productService.getProductsByIsActive(isActive);
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Products fetched successfully",
+                        productService.getProductsByIsActive(isActive)
+                )
+        );
     }
 
     @GetMapping("/price-range")
-    public List<ProductVo> getProductsByPriceRange(
+    public ResponseEntity<ApiResponse<List<ProductVo>>> getProductsByPriceRange(
             @RequestParam BigDecimal minPrice,
             @RequestParam BigDecimal maxPrice) {
 
-        return productService.getProductsByPriceRange(
-                minPrice,
-                maxPrice
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Products fetched successfully",
+                        productService.getProductsByPriceRange(
+                                minPrice,
+                                maxPrice
+                        )
+                )
         );
     }
 
     @GetMapping("/search")
-    public List<ProductVo> searchProductsByName(
+    public ResponseEntity<ApiResponse<List<ProductVo>>> searchProductsByName(
             @RequestParam String name) {
 
-        return productService.searchProductsByName(name);
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Products fetched successfully",
+                        productService.searchProductsByName(name)
+                )
+        );
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<ProductVo> getProductById(
+    public ResponseEntity<ApiResponse<ProductVo>> getProductById(
             @PathVariable Long productId) {
 
         return ResponseEntity.ok(
-                productService.getProductById(productId)
+                new ApiResponse<>(
+                        "Product fetched successfully",
+                        productService.getProductById(productId)
+                )
         );
     }
 
     @PatchMapping("/{productId}/stock")
-    public ResponseEntity<Map<String, Object>> updateStock(
+    public ResponseEntity<ApiResponse<ProductVo>> updateStock(
             @PathVariable Long productId,
             @Valid @RequestBody StockUpdateVo stockUpdateVo) {
 
@@ -142,22 +163,23 @@ public class ProductController {
         );
 
         return ResponseEntity.ok(
-                Map.of(
-                        "message", "Product restocked successfully",
-                        "data", updatedProduct
+                new ApiResponse<>(
+                        "Product restocked successfully",
+                        updatedProduct
                 )
         );
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Map<String, String>> deleteProduct(
+    public ResponseEntity<ApiResponse<Void>> deleteProduct(
             @PathVariable Long productId) {
 
         productService.deleteProduct(productId);
 
         return ResponseEntity.ok(
-                Map.of(
-                        "message", "Product deleted successfully"
+                new ApiResponse<>(
+                        "Product deleted successfully",
+                        null
                 )
         );
     }
