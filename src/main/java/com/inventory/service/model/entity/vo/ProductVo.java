@@ -43,6 +43,6 @@ public class ProductVo {
     @Min(value = 0, message = "Available quantity cannot be negative")
     private Integer availableQuantity;
 
-    @NotNull(message = "Product status is required")
+    @NotNull(message = "Product active status is required")
     private Boolean isActive;
 }

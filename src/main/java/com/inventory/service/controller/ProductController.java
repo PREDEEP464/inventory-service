@@ -140,6 +140,37 @@ public class ProductController {
         );
     }
 
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse<List<ProductVo>>> createProducts(
+            @Valid @RequestBody List<ProductVo> productVos) {
+
+        List<ProductVo> createdProducts =
+                productService.createProducts(productVos);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        new ApiResponse<>(
+                                "Products created successfully",
+                                createdProducts
+                        )
+                );
+    }
+
+    @DeleteMapping("/batch")
+    public ResponseEntity<ApiResponse<Void>> deleteProducts(
+            @RequestBody List<Long> productIds) {
+
+        productService.deleteProducts(productIds);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Products deleted successfully",
+                        null
+                )
+        );
+    }
+
     @GetMapping("/{productId}")
     public ResponseEntity<ApiResponse<ProductVo>> getProductById(
             @PathVariable Long productId) {

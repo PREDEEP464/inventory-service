@@ -10,6 +10,9 @@ import com.inventory.service.specification.ProductSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.inventory.service.cache.ProductCache;
+
+import java.util.ArrayList;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,13 +22,16 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductCache productCache;
 
     public ProductServiceImpl(
             ProductRepository productRepository,
-            CategoryRepository categoryRepository) {
+            CategoryRepository categoryRepository,
+            ProductCache productCache) {
 
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.productCache = productCache;
     }
 
     @Override
@@ -47,7 +53,11 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProduct = productRepository.save(product);
 
-        return convertToVo(savedProduct);
+        ProductVo createdProduct = convertToVo(savedProduct);
+
+        productCache.put(createdProduct);
+
+        return createdProduct;
     }
 
     @Override
@@ -70,16 +80,33 @@ public class ProductServiceImpl implements ProductService {
 
         Product updatedProduct = productRepository.save(product);
 
-        return convertToVo(updatedProduct);
+        ProductVo updatedProductVo = convertToVo(updatedProduct);
+
+        productCache.put(updatedProductVo);
+
+        return updatedProductVo;
     }
 
     @Override
     public ProductVo getProductById(Long productId) {
 
+        // First check cache
+        ProductVo cachedProduct = productCache.get(productId);
+
+        if (cachedProduct != null) {
+            return cachedProduct;
+        }
+
+        // Cache miss → fetch from database
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        return convertToVo(product);
+        ProductVo productVo = convertToVo(product);
+
+        // Store in cache
+        productCache.put(productVo);
+
+        return productVo;
     }
 
     @Override
@@ -98,6 +125,8 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         productRepository.delete(product);
+
+        productCache.remove(productId);
     }
 
     @Override
@@ -179,7 +208,11 @@ public class ProductServiceImpl implements ProductService {
 
         Product updatedProduct = productRepository.save(product);
 
-        return convertToVo(updatedProduct);
+        ProductVo updatedProductVo = convertToVo(updatedProduct);
+
+        productCache.put(updatedProductVo);
+
+        return updatedProductVo;
     }
 
     @Override
@@ -198,7 +231,71 @@ public class ProductServiceImpl implements ProductService {
 
         Product updatedProduct = productRepository.save(product);
 
-        return convertToVo(updatedProduct);
+        ProductVo updatedProductVo = convertToVo(updatedProduct);
+
+        productCache.put(updatedProductVo);
+
+        return updatedProductVo;
+    }
+
+    @Override
+    public List<ProductVo> createProducts(List<ProductVo> productVos) {
+
+        List<Product> products = new ArrayList<>();
+
+        for (ProductVo productVo : productVos) {
+
+            Category category = categoryRepository
+                    .findById(productVo.getCategoryId())
+                    .orElseThrow(() ->
+                            new RuntimeException(
+                                    "Category not found: "
+                                            + productVo.getCategoryId()
+                            )
+                    );
+
+            Product product = new Product();
+
+            product.setProductCode(productVo.getProductCode());
+            product.setProductName(productVo.getProductName());
+            product.setProductDescription(productVo.getProductDescription());
+            product.setCategory(category);
+            product.setProductPrice(productVo.getProductPrice());
+            product.setTotalQuantity(productVo.getTotalQuantity());
+            product.setAvailableQuantity(productVo.getAvailableQuantity());
+            product.setIsActive(productVo.getIsActive());
+
+            products.add(product);
+        }
+
+        List<Product> savedProducts =
+                productRepository.saveAll(products);
+
+        List<ProductVo> createdProducts = savedProducts
+                .stream()
+                .map(this::convertToVo)
+                .toList();
+
+        // Add every created product to cache
+        createdProducts.forEach(productCache::put);
+
+        return createdProducts;
+    }
+
+    @Override
+    public void deleteProducts(List<Long> productIds) {
+
+        List<Product> products =
+                productRepository.findAllById(productIds);
+
+        if (products.size() != productIds.size()) {
+            throw new RuntimeException("One or more products not found");
+        }
+
+        productRepository.deleteAll(products);
+
+        // Remove deleted products from cache
+        productIds.forEach(productCache::remove);
     }
 
     private ProductVo convertToVo(Product product) {

@@ -4,14 +4,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.inventory.service.model.entity.vo.ProductVo;
-import com.inventory.service.model.entity.vo.StockUpdateVo;
-import java.math.BigDecimal;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductService {
 
     ProductVo createProduct(ProductVo productVo);
+
+    List<ProductVo> createProducts(List<ProductVo> productVos);
 
     ProductVo updateProduct(Long productId, ProductVo productVo);
 
@@ -44,4 +45,6 @@ public interface ProductService {
     );
 
     void deleteProduct(Long productId);
+
+    void deleteProducts(List<Long> productIds);
 }

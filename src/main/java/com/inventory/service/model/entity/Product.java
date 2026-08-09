@@ -58,7 +58,7 @@ public class Product {
     @Column(name = "available_quantity", nullable = false)
     private Integer availableQuantity;
 
-    @Column(name = "is_active", nullable = false, length = 30)
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
     @Column(name = "created_at", nullable = false)
