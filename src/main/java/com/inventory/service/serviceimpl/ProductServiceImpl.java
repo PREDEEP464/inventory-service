@@ -239,6 +239,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductVo restoreStock(Long productId, Integer quantity) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        product.setAvailableQuantity(
+                product.getAvailableQuantity() + quantity
+        );
+
+        Product updatedProduct = productRepository.save(product);
+
+        return convertToVo(updatedProduct);
+    }
+
+    @Override
     public List<ProductVo> createProducts(List<ProductVo> productVos) {
 
         List<Product> products = new ArrayList<>();

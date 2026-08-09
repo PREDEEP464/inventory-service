@@ -219,6 +219,24 @@ public class ProductController {
         );
     }
 
+    @PatchMapping("/{productId}/stock/restore")
+    public ResponseEntity<ApiResponse<ProductVo>> restoreStock(
+            @PathVariable Long productId,
+            @Valid @RequestBody StockUpdateVo stockUpdateVo) {
+
+        ProductVo updatedProduct = productService.restoreStock(
+                productId,
+                stockUpdateVo.getQuantity()
+        );
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Product stock restored successfully",
+                        updatedProduct
+                )
+        );
+    }
+
     @DeleteMapping("/{productId}")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(
             @PathVariable Long productId) {

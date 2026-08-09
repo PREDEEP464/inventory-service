@@ -35,6 +35,8 @@ public interface ProductService {
 
     ProductVo reduceStock(Long productId, Integer quantity);
 
+    ProductVo restoreStock(Long productId, Integer quantity);
+
     Page<ProductVo> filterProducts(
             Long categoryId,
             Boolean isActive,
