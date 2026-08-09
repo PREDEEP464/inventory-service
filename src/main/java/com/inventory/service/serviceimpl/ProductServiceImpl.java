@@ -182,6 +182,25 @@ public class ProductServiceImpl implements ProductService {
         return convertToVo(updatedProduct);
     }
 
+    @Override
+    public ProductVo reduceStock(Long productId, Integer quantity) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (quantity > product.getAvailableQuantity()) {
+            throw new RuntimeException("Insufficient stock");
+        }
+
+        product.setAvailableQuantity(
+                product.getAvailableQuantity() - quantity
+        );
+
+        Product updatedProduct = productRepository.save(product);
+
+        return convertToVo(updatedProduct);
+    }
+
     private ProductVo convertToVo(Product product) {
 
         return ProductVo.builder()
