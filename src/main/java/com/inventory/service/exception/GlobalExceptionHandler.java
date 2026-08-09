@@ -69,6 +69,7 @@ public class GlobalExceptionHandler {
 
             response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("error", "Not Found");
+            response.put("message", exception.getMessage());
 
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)

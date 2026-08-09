@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.inventory.service.model.entity.vo.ProductVo;
+import com.inventory.service.model.entity.vo.StockUpdateVo;
 import java.math.BigDecimal;
 
 import java.util.List;
@@ -28,6 +29,8 @@ public interface ProductService {
     );
 
     List<ProductVo> searchProductsByName(String name);
+
+    ProductVo updateStock(Long productId, Integer quantity);
 
     Page<ProductVo> filterProducts(
             Long categoryId,

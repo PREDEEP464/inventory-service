@@ -163,6 +163,25 @@ public class ProductServiceImpl implements ProductService {
         return productPage.map(this::convertToVo);
     }
 
+    @Override
+    public ProductVo updateStock(Long productId, Integer quantity) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        product.setTotalQuantity(
+                product.getTotalQuantity() + quantity
+        );
+
+        product.setAvailableQuantity(
+                product.getAvailableQuantity() + quantity
+        );
+
+        Product updatedProduct = productRepository.save(product);
+
+        return convertToVo(updatedProduct);
+    }
+
     private ProductVo convertToVo(Product product) {
 
         return ProductVo.builder()

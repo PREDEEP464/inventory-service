@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import com.inventory.service.model.entity.vo.ProductVo;
+import com.inventory.service.model.entity.vo.StockUpdateVo;
 import com.inventory.service.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -127,6 +128,24 @@ public class ProductController {
 
         return ResponseEntity.ok(
                 productService.getProductById(productId)
+        );
+    }
+
+    @PatchMapping("/{productId}/stock")
+    public ResponseEntity<Map<String, Object>> updateStock(
+            @PathVariable Long productId,
+            @Valid @RequestBody StockUpdateVo stockUpdateVo) {
+
+        ProductVo updatedProduct = productService.updateStock(
+                productId,
+                stockUpdateVo.getQuantity()
+        );
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message", "Product restocked successfully",
+                        "data", updatedProduct
+                )
         );
     }
 
