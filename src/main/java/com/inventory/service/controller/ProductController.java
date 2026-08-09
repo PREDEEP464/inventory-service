@@ -5,10 +5,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import jakarta.validation.constraints.Min;
 
 import com.inventory.service.model.entity.vo.ProductVo;
 import com.inventory.service.model.entity.vo.StockUpdateVo;
 import com.inventory.service.model.entity.vo.ApiResponse;
+import com.inventory.service.model.entity.vo.InventoryStatisticsVo;
 import com.inventory.service.service.ProductService;
 
 import jakarta.validation.Valid;
@@ -233,6 +235,37 @@ public class ProductController {
                 new ApiResponse<>(
                         "Product stock restored successfully",
                         updatedProduct
+                )
+        );
+    }
+
+    @GetMapping("/low-stock")
+    public ResponseEntity<ApiResponse<List<ProductVo>>> getLowStockProducts(
+            @RequestParam
+            @Min(value = 1, message = "Threshold must be greater than 0")
+            Integer threshold) {
+
+        List<ProductVo> products =
+                productService.getLowStockProducts(threshold);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Low stock products fetched successfully",
+                        products
+                )
+        );
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<ApiResponse<InventoryStatisticsVo>> getInventoryStatistics() {
+
+        InventoryStatisticsVo statistics =
+                productService.getInventoryStatistics();
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Inventory statistics fetched successfully",
+                        statistics
                 )
         );
     }

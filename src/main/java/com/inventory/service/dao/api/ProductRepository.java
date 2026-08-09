@@ -22,4 +22,10 @@ public interface ProductRepository
     );
 
     List<Product> findByProductNameContainingIgnoreCase(String productName);
+
+    List<Product> findByAvailableQuantityLessThanEqualAndIsActive(
+            Integer quantity,
+            Boolean isActive
+    );
+
 }

@@ -3,6 +3,7 @@ package com.inventory.service.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.inventory.service.model.entity.vo.InventoryStatisticsVo;
 import com.inventory.service.model.entity.vo.ProductVo;
 
 import java.math.BigDecimal;
@@ -30,6 +31,10 @@ public interface ProductService {
     );
 
     List<ProductVo> searchProductsByName(String name);
+
+    List<ProductVo> getLowStockProducts(Integer threshold);
+
+    InventoryStatisticsVo getInventoryStatistics();
 
     ProductVo updateStock(Long productId, Integer quantity);
 

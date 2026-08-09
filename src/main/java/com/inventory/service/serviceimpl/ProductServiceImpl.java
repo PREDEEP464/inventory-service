@@ -1,4 +1,5 @@
 package com.inventory.service.serviceimpl;
+import com.inventory.service.model.entity.vo.InventoryStatisticsVo;
 
 import com.inventory.service.dao.api.CategoryRepository;
 import com.inventory.service.dao.api.ProductRepository;
@@ -251,6 +252,62 @@ public class ProductServiceImpl implements ProductService {
         Product updatedProduct = productRepository.save(product);
 
         return convertToVo(updatedProduct);
+    }
+
+    @Override
+    public List<ProductVo> getLowStockProducts(Integer threshold) {
+
+        if (threshold == null || threshold <= 0) {
+            throw new IllegalArgumentException(
+                    "Low stock threshold must be greater than 0"
+            );
+        }
+
+        return productRepository
+                .findByAvailableQuantityLessThanEqualAndIsActive(
+                        threshold,
+                        true
+                )
+                .stream()
+                .map(this::convertToVo)
+                .toList();
+    }
+
+    @Override
+    public InventoryStatisticsVo getInventoryStatistics() {
+
+        List<Product> products = productRepository.findAll();
+
+        long totalProducts = products.size();
+
+        long activeProducts = products.stream()
+                .filter(product -> Boolean.TRUE.equals(product.getIsActive()))
+                .count();
+
+        long inactiveProducts = products.stream()
+                .filter(product -> Boolean.FALSE.equals(product.getIsActive()))
+                .count();
+
+        long totalStock = products.stream()
+                .mapToLong(Product::getTotalQuantity)
+                .sum();
+
+        long availableStock = products.stream()
+                .mapToLong(Product::getAvailableQuantity)
+                .sum();
+
+        long lowStockProducts = products.stream()
+                .filter(product -> product.getAvailableQuantity() <= 10)
+                .count();
+
+        return InventoryStatisticsVo.builder()
+                .totalProducts(totalProducts)
+                .activeProducts(activeProducts)
+                .inactiveProducts(inactiveProducts)
+                .totalStock(totalStock)
+                .availableStock(availableStock)
+                .lowStockProducts(lowStockProducts)
+                .build();
     }
 
     @Override
