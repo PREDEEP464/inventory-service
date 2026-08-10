@@ -357,6 +357,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProducts(List<Long> productIds) {
 
+        if (productIds == null || productIds.isEmpty()) {
+            throw new RuntimeException("Product IDs cannot be empty");
+        }
+
         List<Product> products =
                 productRepository.findAllById(productIds);
 
