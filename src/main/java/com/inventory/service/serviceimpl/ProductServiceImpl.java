@@ -11,7 +11,10 @@ import com.inventory.service.specification.ProductSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import com.inventory.service.cache.ProductCache;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.ArrayList;
 
@@ -23,19 +26,20 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final ProductCache productCache;
 
     public ProductServiceImpl(
             ProductRepository productRepository,
-            CategoryRepository categoryRepository,
-            ProductCache productCache) {
+            CategoryRepository categoryRepository) {
 
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
-        this.productCache = productCache;
     }
 
     @Override
+    @CachePut(
+            cacheNames = "products",
+            key = "#result.productId"
+    )
     public ProductVo createProduct(ProductVo productVo) {
 
         Category category = categoryRepository.findById(productVo.getCategoryId())
@@ -56,12 +60,14 @@ public class ProductServiceImpl implements ProductService {
 
         ProductVo createdProduct = convertToVo(savedProduct);
 
-        productCache.put(createdProduct);
-
         return createdProduct;
     }
 
     @Override
+    @CachePut(
+            cacheNames = "products",
+            key = "#productId"
+    )
     public ProductVo updateProduct(Long productId, ProductVo productVo) {
 
         Product product = productRepository.findById(productId)
@@ -83,31 +89,20 @@ public class ProductServiceImpl implements ProductService {
 
         ProductVo updatedProductVo = convertToVo(updatedProduct);
 
-        productCache.put(updatedProductVo);
-
         return updatedProductVo;
     }
 
     @Override
+    @Cacheable(
+            cacheNames = "products",
+            key = "#productId"
+    )
     public ProductVo getProductById(Long productId) {
 
-        // First check cache
-        ProductVo cachedProduct = productCache.get(productId);
-
-        if (cachedProduct != null) {
-            return cachedProduct;
-        }
-
-        // Cache miss → fetch from database
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        ProductVo productVo = convertToVo(product);
-
-        // Store in cache
-        productCache.put(productVo);
-
-        return productVo;
+        return convertToVo(product);
     }
 
     @Override
@@ -120,6 +115,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(
+            cacheNames = "products",
+            key = "#productId"
+    )
     public void deleteProduct(Long productId) {
 
         Product product = productRepository.findById(productId)
@@ -127,7 +126,6 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.delete(product);
 
-        productCache.remove(productId);
     }
 
     @Override
@@ -194,6 +192,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CachePut(
+            cacheNames = "products",
+            key = "#productId"
+    )
     public ProductVo updateStock(Long productId, Integer quantity) {
 
         Product product = productRepository.findById(productId)
@@ -211,12 +213,14 @@ public class ProductServiceImpl implements ProductService {
 
         ProductVo updatedProductVo = convertToVo(updatedProduct);
 
-        productCache.put(updatedProductVo);
-
         return updatedProductVo;
     }
 
     @Override
+    @CachePut(
+            cacheNames = "products",
+            key = "#productId"
+    )
     public ProductVo reduceStock(Long productId, Integer quantity) {
 
         Product product = productRepository.findById(productId)
@@ -234,12 +238,14 @@ public class ProductServiceImpl implements ProductService {
 
         ProductVo updatedProductVo = convertToVo(updatedProduct);
 
-        productCache.put(updatedProductVo);
-
         return updatedProductVo;
     }
 
     @Override
+    @CachePut(
+            cacheNames = "products",
+            key = "#productId"
+    )
     public ProductVo restoreStock(Long productId, Integer quantity) {
 
         Product product = productRepository.findById(productId)
@@ -348,13 +354,14 @@ public class ProductServiceImpl implements ProductService {
                 .map(this::convertToVo)
                 .toList();
 
-        // Add every created product to cache
-        createdProducts.forEach(productCache::put);
-
         return createdProducts;
     }
 
     @Override
+    @CacheEvict(
+            cacheNames = "products",
+            allEntries = true
+    )
     public void deleteProducts(List<Long> productIds) {
 
         if (productIds == null || productIds.isEmpty()) {
@@ -370,8 +377,6 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.deleteAll(products);
 
-        // Remove deleted products from cache
-        productIds.forEach(productCache::remove);
     }
 
     private ProductVo convertToVo(Product product) {
