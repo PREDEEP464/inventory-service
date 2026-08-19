@@ -239,6 +239,22 @@ public class ProductController {
         );
     }
 
+    @PatchMapping("/{productId}/status")
+    public ResponseEntity<ApiResponse<ProductVo>> updateProductStatus(
+            @PathVariable Long productId,
+            @RequestParam Boolean isActive) {
+
+        ProductVo updatedProduct =
+                productService.updateProductStatus(productId, isActive);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Product status updated successfully",
+                        updatedProduct
+                )
+        );
+    }
+
     @GetMapping("/low-stock")
     public ResponseEntity<ApiResponse<List<ProductVo>>> getLowStockProducts(
             @RequestParam

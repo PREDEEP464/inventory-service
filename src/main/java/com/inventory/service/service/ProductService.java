@@ -25,6 +25,8 @@ public interface ProductService {
 
     List<ProductVo> getProductsByIsActive(Boolean isActive);
 
+    ProductVo updateProductStatus(Long productId, Boolean isActive);
+
     List<ProductVo> getProductsByPriceRange(
             BigDecimal minPrice,
             BigDecimal maxPrice

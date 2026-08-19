@@ -261,6 +261,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductVo updateProductStatus(Long productId, Boolean isActive) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() ->
+                        new RuntimeException("Product not found with ID: " + productId));
+
+        product.setIsActive(isActive);
+
+        Product updatedProduct = productRepository.save(product);
+
+        return convertToVo(updatedProduct);
+    }
+
+    @Override
     public List<ProductVo> getLowStockProducts(Integer threshold) {
 
         if (threshold == null || threshold <= 0) {
