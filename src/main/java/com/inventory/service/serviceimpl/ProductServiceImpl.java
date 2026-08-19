@@ -1,5 +1,6 @@
 package com.inventory.service.serviceimpl;
 import com.inventory.service.model.entity.vo.InventoryStatisticsVo;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.inventory.service.dao.api.CategoryRepository;
 import com.inventory.service.dao.api.ProductRepository;
@@ -216,6 +217,7 @@ public class ProductServiceImpl implements ProductService {
         return updatedProductVo;
     }
 
+    @Transactional
     @Override
     @CachePut(
             cacheNames = "products",
@@ -223,24 +225,28 @@ public class ProductServiceImpl implements ProductService {
     )
     public ProductVo reduceStock(Long productId, Integer quantity) {
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        int updatedRows = productRepository.reduceStock(
+                productId,
+                quantity
+        );
 
-        if (quantity > product.getAvailableQuantity()) {
+        if (updatedRows == 0) {
+
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() ->
+                            new RuntimeException("Product not found"));
+
             throw new RuntimeException("Insufficient stock");
         }
 
-        product.setAvailableQuantity(
-                product.getAvailableQuantity() - quantity
-        );
+        Product updatedProduct = productRepository.findById(productId)
+                .orElseThrow(() ->
+                        new RuntimeException("Product not found"));
 
-        Product updatedProduct = productRepository.save(product);
-
-        ProductVo updatedProductVo = convertToVo(updatedProduct);
-
-        return updatedProductVo;
+        return convertToVo(updatedProduct);
     }
 
+    @Transactional
     @Override
     @CachePut(
             cacheNames = "products",
@@ -248,14 +254,18 @@ public class ProductServiceImpl implements ProductService {
     )
     public ProductVo restoreStock(Long productId, Integer quantity) {
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        product.setAvailableQuantity(
-                product.getAvailableQuantity() + quantity
+        int updatedRows = productRepository.restoreStock(
+                productId,
+                quantity
         );
 
-        Product updatedProduct = productRepository.save(product);
+        if (updatedRows == 0) {
+            throw new RuntimeException("Product not found");
+        }
+
+        Product updatedProduct = productRepository.findById(productId)
+                .orElseThrow(() ->
+                        new RuntimeException("Product not found"));
 
         return convertToVo(updatedProduct);
     }
