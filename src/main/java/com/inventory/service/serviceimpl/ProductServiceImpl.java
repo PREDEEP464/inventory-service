@@ -59,9 +59,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProduct = productRepository.save(product);
 
-        ProductVo createdProduct = convertToVo(savedProduct);
-
-        return createdProduct;
+        return convertToVo(savedProduct);
     }
 
     @Override
@@ -88,9 +86,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product updatedProduct = productRepository.save(product);
 
-        ProductVo updatedProductVo = convertToVo(updatedProduct);
-
-        return updatedProductVo;
+        return convertToVo(updatedProduct);
     }
 
     @Override
@@ -212,9 +208,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product updatedProduct = productRepository.save(product);
 
-        ProductVo updatedProductVo = convertToVo(updatedProduct);
-
-        return updatedProductVo;
+        return convertToVo(updatedProduct);
     }
 
     @Transactional
