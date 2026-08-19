@@ -204,7 +204,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{productId}/stock/reduce")
-    public ResponseEntity<ApiResponse> reduceStock(
+    public ResponseEntity<ApiResponse<ProductVo>> reduceStock(
             @PathVariable Long productId,
             @Valid @RequestBody StockUpdateVo stockUpdateVo) {
 
