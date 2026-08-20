@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.inventory.service.model.entity.vo.InventoryStatisticsVo;
 import com.inventory.service.model.entity.vo.ProductVo;
+import com.inventory.service.model.entity.vo.ProductUpdateVo;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,7 +16,7 @@ public interface ProductService {
 
     List<ProductVo> createProducts(List<ProductVo> productVos);
 
-    ProductVo updateProduct(Long productId, ProductVo productVo);
+    List<ProductVo> updateProducts(List<ProductUpdateVo> productUpdates);
 
     ProductVo getProductById(Long productId);
 

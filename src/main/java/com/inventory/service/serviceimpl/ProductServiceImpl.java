@@ -7,6 +7,7 @@ import com.inventory.service.dao.api.ProductRepository;
 import com.inventory.service.model.entity.Category;
 import com.inventory.service.model.entity.Product;
 import com.inventory.service.model.entity.vo.ProductVo;
+import com.inventory.service.model.entity.vo.ProductUpdateVo;
 import com.inventory.service.service.ProductService;
 import com.inventory.service.specification.ProductSpecification;
 import org.springframework.data.domain.Page;
@@ -61,28 +62,66 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @CacheEvict(
             cacheNames = "products",
-            key = "#productId"
+            allEntries = true
     )
-    public ProductVo updateProduct(Long productId, ProductVo productVo) {
+    @Transactional
+    public List<ProductVo> updateProducts(
+            List<ProductUpdateVo> productUpdates) {
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        List<ProductVo> updatedProducts = new ArrayList<>();
 
-        Category category = categoryRepository.findById(productVo.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+        for (ProductUpdateVo updateVo : productUpdates) {
 
-        product.setProductCode(productVo.getProductCode());
-        product.setProductName(productVo.getProductName());
-        product.setProductDescription(productVo.getProductDescription());
-        product.setCategory(category);
-        product.setProductPrice(productVo.getProductPrice());
-        product.setTotalQuantity(productVo.getTotalQuantity());
-        product.setAvailableQuantity(productVo.getAvailableQuantity());
-        product.setIsActive(productVo.getIsActive());
+            Product product = productRepository.findById(updateVo.getProductId())
+                    .orElseThrow(() ->
+                            new RuntimeException(
+                                    "Product not found: " + updateVo.getProductId()
+                            ));
 
-        Product updatedProduct = productRepository.save(product);
+            if (updateVo.getProductCode() != null) {
+                product.setProductCode(updateVo.getProductCode());
+            }
 
-        return convertToVo(updatedProduct);
+            if (updateVo.getProductName() != null) {
+                product.setProductName(updateVo.getProductName());
+            }
+
+            if (updateVo.getProductDescription() != null) {
+                product.setProductDescription(
+                        updateVo.getProductDescription()
+                );
+            }
+
+            if (updateVo.getCategoryId() != null) {
+
+                Category category = categoryRepository
+                        .findById(updateVo.getCategoryId())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Category not found: "
+                                                + updateVo.getCategoryId()
+                                ));
+
+                product.setCategory(category);
+            }
+
+            if (updateVo.getProductPrice() != null) {
+                product.setProductPrice(updateVo.getProductPrice());
+            }
+
+            if (updateVo.getIsActive() != null) {
+                product.setIsActive(updateVo.getIsActive());
+            }
+
+            Product updatedProduct =
+                    productRepository.save(product);
+
+            updatedProducts.add(
+                    convertToVo(updatedProduct)
+            );
+        }
+
+        return updatedProducts;
     }
 
     @Override

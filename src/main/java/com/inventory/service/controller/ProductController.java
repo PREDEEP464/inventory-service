@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import jakarta.validation.constraints.Min;
 
 import com.inventory.service.model.entity.vo.ProductVo;
+import com.inventory.service.model.entity.vo.ProductUpdateVo;
 import com.inventory.service.model.entity.vo.StockUpdateVo;
 import com.inventory.service.model.entity.vo.ApiResponse;
 import com.inventory.service.model.entity.vo.InventoryStatisticsVo;
@@ -47,18 +48,17 @@ public class ProductController {
                 );
     }
 
-    @PutMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductVo>> updateProduct(
-            @PathVariable Long productId,
-            @Valid @RequestBody ProductVo productVo) {
+    @PatchMapping
+    public ResponseEntity<ApiResponse<List<ProductVo>>> updateProducts(
+            @Valid @RequestBody List<ProductUpdateVo> productUpdates) {
 
-        ProductVo updatedProduct =
-                productService.updateProduct(productId, productVo);
+        List<ProductVo> updatedProducts =
+                productService.updateProducts(productUpdates);
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
-                        "Product updated successfully",
-                        updatedProduct
+                        "Products updated successfully",
+                        updatedProducts
                 )
         );
     }
