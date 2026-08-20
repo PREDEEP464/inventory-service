@@ -67,7 +67,6 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ProductVo>>> getAllProducts(
             @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) Boolean isActive,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) String name,
@@ -75,7 +74,6 @@ public class ProductController {
 
         Page<ProductVo> products = productService.filterProducts(
                 categoryId,
-                isActive,
                 minPrice,
                 maxPrice,
                 name,
@@ -157,20 +155,6 @@ public class ProductController {
                                 createdProducts
                         )
                 );
-    }
-
-    @DeleteMapping("/batch")
-    public ResponseEntity<ApiResponse<Void>> deleteProducts(
-            @RequestBody List<Long> productIds) {
-
-        productService.deleteProducts(productIds);
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        "Products deleted successfully",
-                        null
-                )
-        );
     }
 
     @GetMapping("/{productId}")
@@ -286,17 +270,4 @@ public class ProductController {
         );
     }
 
-    @DeleteMapping("/{productId}")
-    public ResponseEntity<ApiResponse<Void>> deleteProduct(
-            @PathVariable Long productId) {
-
-        productService.deleteProduct(productId);
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        "Product deleted successfully",
-                        null
-                )
-        );
-    }
 }

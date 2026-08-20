@@ -3,29 +3,39 @@ package com.inventory.service.dao.api;
 import com.inventory.service.model.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
-
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductRepository
         extends JpaRepository<Product, Long>,
-        JpaSpecificationExecutor<Product>{
+        JpaSpecificationExecutor<Product> {
 
-    List<Product> findByCategoryCategoryId(Long categoryId);
+    Optional<Product> findByProductIdAndIsActive(
+            Long productId,
+            Boolean isActive
+    );
 
-    List<Product> findByIsActive(Boolean isActive);
+    List<Product> findByIsActiveTrue();
 
-    List<Product> findByProductPriceBetween(
+    List<Product> findByCategoryCategoryIdAndIsActiveTrue(
+            Long categoryId
+    );
+
+    List<Product> findByProductPriceBetweenAndIsActiveTrue(
             BigDecimal minPrice,
             BigDecimal maxPrice
     );
 
-    List<Product> findByProductNameContainingIgnoreCase(String productName);
+    List<Product> findByProductNameContainingIgnoreCaseAndIsActiveTrue(
+            String name
+    );
+
+    List<Product> findByIsActive(Boolean isActive);
 
     List<Product> findByAvailableQuantityLessThanEqualAndIsActive(
             Integer quantity,
@@ -54,5 +64,4 @@ public interface ProductRepository
             @Param("productId") Long productId,
             @Param("quantity") Integer quantity
     );
-
 }

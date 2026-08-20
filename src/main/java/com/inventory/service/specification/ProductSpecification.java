@@ -12,7 +12,6 @@ public class ProductSpecification {
 
     public static Specification<Product> filterProducts(
             Long categoryId,
-            Boolean isActive,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             String name) {
@@ -21,20 +20,19 @@ public class ProductSpecification {
 
             List<Predicate> predicates = new ArrayList<>();
 
+            // Only active products
+            predicates.add(
+                    criteriaBuilder.equal(
+                            root.get("isActive"),
+                            true
+                    )
+            );
+
             if (categoryId != null) {
                 predicates.add(
                         criteriaBuilder.equal(
                                 root.get("category").get("categoryId"),
                                 categoryId
-                        )
-                );
-            }
-
-            if (isActive != null) {
-                predicates.add(
-                        criteriaBuilder.equal(
-                                root.get("isActive"),
-                                isActive
                         )
                 );
             }

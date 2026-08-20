@@ -46,14 +46,11 @@ public interface ProductService {
 
     Page<ProductVo> filterProducts(
             Long categoryId,
-            Boolean isActive,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             String name,
             Pageable pageable
     );
 
-    void deleteProduct(Long productId);
 
-    void deleteProducts(List<Long> productIds);
 }

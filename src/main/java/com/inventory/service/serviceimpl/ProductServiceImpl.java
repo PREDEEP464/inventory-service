@@ -37,10 +37,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @CachePut(
-            cacheNames = "products",
-            key = "#result.productId"
-    )
     public ProductVo createProduct(ProductVo productVo) {
 
         Category category = categoryRepository.findById(productVo.getCategoryId())
@@ -63,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @CachePut(
+    @CacheEvict(
             cacheNames = "products",
             key = "#productId"
     )
@@ -96,8 +92,10 @@ public class ProductServiceImpl implements ProductService {
     )
     public ProductVo getProductById(Long productId) {
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = productRepository
+                .findByProductIdAndIsActive(productId, true)
+                .orElseThrow(() ->
+                        new RuntimeException("Product not found"));
 
         return convertToVo(product);
     }
@@ -105,30 +103,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductVo> getAllProducts() {
 
-        return productRepository.findAll()
+        return productRepository.findByIsActiveTrue()
                 .stream()
                 .map(this::convertToVo)
                 .toList();
     }
 
     @Override
-    @CacheEvict(
-            cacheNames = "products",
-            key = "#productId"
-    )
-    public void deleteProduct(Long productId) {
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        productRepository.delete(product);
-
-    }
-
-    @Override
     public List<ProductVo> getProductsByCategory(Long categoryId) {
 
-        return productRepository.findByCategoryCategoryId(categoryId)
+        return productRepository
+                .findByCategoryCategoryIdAndIsActiveTrue(categoryId)
                 .stream()
                 .map(this::convertToVo)
                 .toList();
@@ -137,7 +122,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductVo> getProductsByIsActive(Boolean isActive) {
 
-        return productRepository.findByIsActive(isActive)
+        return productRepository
+                .findByIsActive(isActive)
                 .stream()
                 .map(this::convertToVo)
                 .toList();
@@ -149,7 +135,10 @@ public class ProductServiceImpl implements ProductService {
             BigDecimal maxPrice) {
 
         return productRepository
-                .findByProductPriceBetween(minPrice, maxPrice)
+                .findByProductPriceBetweenAndIsActiveTrue(
+                        minPrice,
+                        maxPrice
+                )
                 .stream()
                 .map(this::convertToVo)
                 .toList();
@@ -159,7 +148,7 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductVo> searchProductsByName(String name) {
 
         return productRepository
-                .findByProductNameContainingIgnoreCase(name)
+                .findByProductNameContainingIgnoreCaseAndIsActiveTrue(name)
                 .stream()
                 .map(this::convertToVo)
                 .toList();
@@ -168,7 +157,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductVo> filterProducts(
             Long categoryId,
-            Boolean isActive,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             String name,
@@ -177,7 +165,6 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> productPage = productRepository.findAll(
                 ProductSpecification.filterProducts(
                         categoryId,
-                        isActive,
                         minPrice,
                         maxPrice,
                         name
@@ -189,7 +176,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @CachePut(
+    @CacheEvict(
             cacheNames = "products",
             key = "#productId"
     )
@@ -213,7 +200,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    @CachePut(
+    @CacheEvict(
             cacheNames = "products",
             key = "#productId"
     )
@@ -242,7 +229,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    @CachePut(
+    @CacheEvict(
             cacheNames = "products",
             key = "#productId"
     )
@@ -265,6 +252,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(
+            cacheNames = "products",
+            key = "#productId"
+    )
     public ProductVo updateProductStatus(Long productId, Boolean isActive) {
 
         Product product = productRepository.findById(productId)
@@ -373,28 +364,6 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
 
         return createdProducts;
-    }
-
-    @Override
-    @CacheEvict(
-            cacheNames = "products",
-            allEntries = true
-    )
-    public void deleteProducts(List<Long> productIds) {
-
-        if (productIds == null || productIds.isEmpty()) {
-            throw new RuntimeException("Product IDs cannot be empty");
-        }
-
-        List<Product> products =
-                productRepository.findAllById(productIds);
-
-        if (products.size() != productIds.size()) {
-            throw new RuntimeException("One or more products not found");
-        }
-
-        productRepository.deleteAll(products);
-
     }
 
     private ProductVo convertToVo(Product product) {
