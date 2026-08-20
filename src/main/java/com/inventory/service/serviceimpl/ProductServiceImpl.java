@@ -42,16 +42,7 @@ public class ProductServiceImpl implements ProductService {
         Category category = categoryRepository.findById(productVo.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
-        Product product = new Product();
-
-        product.setProductCode(productVo.getProductCode());
-        product.setProductName(productVo.getProductName());
-        product.setProductDescription(productVo.getProductDescription());
-        product.setCategory(category);
-        product.setProductPrice(productVo.getProductPrice());
-        product.setTotalQuantity(productVo.getTotalQuantity());
-        product.setAvailableQuantity(productVo.getAvailableQuantity());
-        product.setIsActive(productVo.getIsActive());
+        Product product = convertToEntity(productVo, category);
 
         Product savedProduct = productRepository.save(product);
 
@@ -379,16 +370,7 @@ public class ProductServiceImpl implements ProductService {
                             )
                     );
 
-            Product product = new Product();
-
-            product.setProductCode(productVo.getProductCode());
-            product.setProductName(productVo.getProductName());
-            product.setProductDescription(productVo.getProductDescription());
-            product.setCategory(category);
-            product.setProductPrice(productVo.getProductPrice());
-            product.setTotalQuantity(productVo.getTotalQuantity());
-            product.setAvailableQuantity(productVo.getAvailableQuantity());
-            product.setIsActive(productVo.getIsActive());
+            Product product = convertToEntity(productVo, category);
 
             products.add(product);
         }
@@ -416,6 +398,20 @@ public class ProductServiceImpl implements ProductService {
                 .totalQuantity(product.getTotalQuantity())
                 .availableQuantity(product.getAvailableQuantity())
                 .isActive(product.getIsActive())
+                .build();
+    }
+
+    private Product convertToEntity(ProductVo productVo, Category category) {
+
+        return Product.builder()
+                .productCode(productVo.getProductCode())
+                .productName(productVo.getProductName())
+                .productDescription(productVo.getProductDescription())
+                .category(category)
+                .productPrice(productVo.getProductPrice())
+                .totalQuantity(productVo.getTotalQuantity())
+                .availableQuantity(productVo.getAvailableQuantity())
+                .isActive(productVo.getIsActive())
                 .build();
     }
 }
