@@ -577,7 +577,7 @@ Stock operations are separated based on their business purpose.
 ### Add / Restock Inventory
 
 ``` http
-PATCH /api/products/{productId}/stock
+PATCH /api/products/re-stock
 ```
 
 This operation is intended for inventory/admin stock updates.
@@ -610,7 +610,7 @@ The product cache must remain consistent after the stock update.
 ### Reduce Available Stock
 
 ``` http
-PATCH /api/products/{productId}/stock/reduce
+PATCH /api/products/stock/reduce
 ```
 
 This operation is used by the Order Service after a successful order.
@@ -639,6 +639,10 @@ also be kept consistent after the update.
 ------------------------------------------------------------------------
 
 ### Restore Stock
+
+``` http
+PATCH /api/products/stock/restore
+```
 
 Stock restoration is used when a previously placed order is cancelled.
 
