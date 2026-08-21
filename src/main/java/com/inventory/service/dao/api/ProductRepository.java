@@ -20,7 +20,7 @@ public interface ProductRepository
             Boolean isActive
     );
 
-    List<Product> findByIsActiveTrue();
+    List<Product> findByIsActiveTrueOrderByProductIdAsc();
 
     List<Product> findByCategoryCategoryIdAndIsActiveTrue(
             Long categoryId

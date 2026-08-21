@@ -2,6 +2,9 @@ package com.inventory.service.serviceimpl;
 import com.inventory.service.model.entity.vo.InventoryStatisticsVo;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
 import com.inventory.service.dao.api.CategoryRepository;
 import com.inventory.service.dao.api.ProductRepository;
 import com.inventory.service.model.entity.Category;
@@ -133,7 +136,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductVo> getAllProducts() {
 
-        return productRepository.findByIsActiveTrue()
+        return productRepository.findByIsActiveTrueOrderByProductIdAsc()
                 .stream()
                 .map(this::convertToVo)
                 .toList();
@@ -192,6 +195,12 @@ public class ProductServiceImpl implements ProductService {
             String name,
             Pageable pageable) {
 
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.ASC, "productId")
+        );
+
         Page<Product> productPage = productRepository.findAll(
                 ProductSpecification.filterProducts(
                         categoryId,
@@ -199,7 +208,7 @@ public class ProductServiceImpl implements ProductService {
                         maxPrice,
                         name
                 ),
-                pageable
+                sortedPageable
         );
 
         return productPage.map(this::convertToVo);
