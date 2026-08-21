@@ -169,56 +169,47 @@ public class ProductController {
         );
     }
 
-    @PatchMapping("/{productId}/stock")
-    public ResponseEntity<ApiResponse<ProductVo>> updateStock(
-            @PathVariable Long productId,
-            @Valid @RequestBody StockUpdateVo stockUpdateVo) {
+    @PatchMapping("/re-stock")
+    public ResponseEntity<ApiResponse<List<ProductVo>>> updateStock(
+            @Valid @RequestBody List<StockUpdateVo> stockUpdates) {
 
-        ProductVo updatedProduct = productService.updateStock(
-                productId,
-                stockUpdateVo.getQuantity()
-        );
+        List<ProductVo> updatedProducts =
+                productService.updateStock(stockUpdates);
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
-                        "Product restocked successfully",
-                        updatedProduct
+                        "Products restocked successfully",
+                        updatedProducts
                 )
         );
     }
 
-    @PatchMapping("/{productId}/stock/reduce")
-    public ResponseEntity<ApiResponse<ProductVo>> reduceStock(
-            @PathVariable Long productId,
-            @Valid @RequestBody StockUpdateVo stockUpdateVo) {
+    @PatchMapping("/stock/reduce")
+    public ResponseEntity<ApiResponse<List<ProductVo>>> reduceStock(
+            @Valid @RequestBody List<StockUpdateVo> stockUpdates) {
 
-        ProductVo updatedProduct = productService.reduceStock(
-                productId,
-                stockUpdateVo.getQuantity()
-        );
+        List<ProductVo> updatedProducts =
+                productService.reduceStock(stockUpdates);
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
-                        "Product stock reduced successfully",
-                        updatedProduct
+                        "Product stocks reduced successfully",
+                        updatedProducts
                 )
         );
     }
 
-    @PatchMapping("/{productId}/stock/restore")
-    public ResponseEntity<ApiResponse<ProductVo>> restoreStock(
-            @PathVariable Long productId,
-            @Valid @RequestBody StockUpdateVo stockUpdateVo) {
+    @PatchMapping("/stock/restore")
+    public ResponseEntity<ApiResponse<List<ProductVo>>> restoreStock(
+            @Valid @RequestBody List<StockUpdateVo> stockUpdates) {
 
-        ProductVo updatedProduct = productService.restoreStock(
-                productId,
-                stockUpdateVo.getQuantity()
-        );
+        List<ProductVo> updatedProducts =
+                productService.restoreStock(stockUpdates);
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
-                        "Product stock restored successfully",
-                        updatedProduct
+                        "Product stocks restored successfully",
+                        updatedProducts
                 )
         );
     }

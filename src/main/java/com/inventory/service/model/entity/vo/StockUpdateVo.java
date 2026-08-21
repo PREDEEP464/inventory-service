@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StockUpdateVo {
 
+    @NotNull(message = "Product ID is required")
+    private Long productId;
+
     @NotNull(message = "Stock quantity is required")
     @Min(value = 1, message = "Stock quantity must be greater than 0")
     private Integer quantity;

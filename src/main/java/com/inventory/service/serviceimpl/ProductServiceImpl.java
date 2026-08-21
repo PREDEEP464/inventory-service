@@ -8,6 +8,7 @@ import com.inventory.service.model.entity.Category;
 import com.inventory.service.model.entity.Product;
 import com.inventory.service.model.entity.vo.ProductVo;
 import com.inventory.service.model.entity.vo.ProductUpdateVo;
+import com.inventory.service.model.entity.vo.StockUpdateVo;
 import com.inventory.service.service.ProductService;
 import com.inventory.service.specification.ProductSpecification;
 import org.springframework.data.domain.Page;
@@ -207,77 +208,126 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @CacheEvict(
             cacheNames = "products",
-            key = "#productId"
+            allEntries = true
     )
-    public ProductVo updateStock(Long productId, Integer quantity) {
+    @Transactional
+    public List<ProductVo> updateStock(
+            List<StockUpdateVo> stockUpdates) {
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        List<ProductVo> updatedProducts = new ArrayList<>();
 
-        product.setTotalQuantity(
-                product.getTotalQuantity() + quantity
-        );
+        for (StockUpdateVo stockUpdate : stockUpdates) {
 
-        product.setAvailableQuantity(
-                product.getAvailableQuantity() + quantity
-        );
+            Product product = productRepository.findById(
+                    stockUpdate.getProductId()
+            ).orElseThrow(() ->
+                    new RuntimeException(
+                            "Product not found: "
+                                    + stockUpdate.getProductId()
+                    )
+            );
 
-        Product updatedProduct = productRepository.save(product);
+            product.setTotalQuantity(
+                    product.getTotalQuantity()
+                            + stockUpdate.getQuantity()
+            );
 
-        return convertToVo(updatedProduct);
+            product.setAvailableQuantity(
+                    product.getAvailableQuantity()
+                            + stockUpdate.getQuantity()
+            );
+
+            Product updatedProduct =
+                    productRepository.save(product);
+
+            updatedProducts.add(
+                    convertToVo(updatedProduct)
+            );
+        }
+
+        return updatedProducts;
     }
 
-    @Transactional
     @Override
+    @Transactional
     @CacheEvict(
             cacheNames = "products",
-            key = "#productId"
+            allEntries = true
     )
-    public ProductVo reduceStock(Long productId, Integer quantity) {
+    public List<ProductVo> reduceStock(
+            List<StockUpdateVo> stockUpdates) {
 
-        int updatedRows = productRepository.reduceStock(
-                productId,
-                quantity
-        );
+        List<ProductVo> updatedProducts = new ArrayList<>();
 
-        if (updatedRows == 0) {
+        for (StockUpdateVo stockUpdate : stockUpdates) {
 
-            Product product = productRepository.findById(productId)
+            int updatedRows = productRepository.reduceStock(
+                    stockUpdate.getProductId(),
+                    stockUpdate.getQuantity()
+            );
+
+            if (updatedRows == 0) {
+
+                Product product = productRepository
+                        .findById(stockUpdate.getProductId())
+                        .orElseThrow(() ->
+                                new RuntimeException("Product not found"));
+
+                throw new RuntimeException(
+                        "Insufficient stock for product: "
+                                + stockUpdate.getProductId()
+                );
+            }
+
+            Product updatedProduct = productRepository
+                    .findById(stockUpdate.getProductId())
                     .orElseThrow(() ->
                             new RuntimeException("Product not found"));
 
-            throw new RuntimeException("Insufficient stock");
+            updatedProducts.add(
+                    convertToVo(updatedProduct)
+            );
         }
 
-        Product updatedProduct = productRepository.findById(productId)
-                .orElseThrow(() ->
-                        new RuntimeException("Product not found"));
-
-        return convertToVo(updatedProduct);
+        return updatedProducts;
     }
 
-    @Transactional
     @Override
+    @Transactional
     @CacheEvict(
             cacheNames = "products",
-            key = "#productId"
+            allEntries = true
     )
-    public ProductVo restoreStock(Long productId, Integer quantity) {
+    public List<ProductVo> restoreStock(
+            List<StockUpdateVo> stockUpdates) {
 
-        int updatedRows = productRepository.restoreStock(
-                productId,
-                quantity
-        );
+        List<ProductVo> updatedProducts = new ArrayList<>();
 
-        if (updatedRows == 0) {
-            throw new RuntimeException("Product not found");
+        for (StockUpdateVo stockUpdate : stockUpdates) {
+
+            int updatedRows = productRepository.restoreStock(
+                    stockUpdate.getProductId(),
+                    stockUpdate.getQuantity()
+            );
+
+            if (updatedRows == 0) {
+                throw new RuntimeException(
+                        "Product not found: "
+                                + stockUpdate.getProductId()
+                );
+            }
+
+            Product updatedProduct = productRepository
+                    .findById(stockUpdate.getProductId())
+                    .orElseThrow(() ->
+                            new RuntimeException("Product not found"));
+
+            updatedProducts.add(
+                    convertToVo(updatedProduct)
+            );
         }
 
-        Product updatedProduct = productRepository.findById(productId)
-                .orElseThrow(() ->
-                        new RuntimeException("Product not found"));
-
-        return convertToVo(updatedProduct);
+        return updatedProducts;
     }
 
     @Override

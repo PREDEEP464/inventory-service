@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import com.inventory.service.model.entity.vo.InventoryStatisticsVo;
 import com.inventory.service.model.entity.vo.ProductVo;
 import com.inventory.service.model.entity.vo.ProductUpdateVo;
+import com.inventory.service.model.entity.vo.StockUpdateVo;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,11 +40,11 @@ public interface ProductService {
 
     InventoryStatisticsVo getInventoryStatistics();
 
-    ProductVo updateStock(Long productId, Integer quantity);
+    List<ProductVo> updateStock(List<StockUpdateVo> stockUpdates);
 
-    ProductVo reduceStock(Long productId, Integer quantity);
+    List<ProductVo> reduceStock(List<StockUpdateVo> stockUpdates);
 
-    ProductVo restoreStock(Long productId, Integer quantity);
+    List<ProductVo> restoreStock(List<StockUpdateVo> stockUpdates);
 
     Page<ProductVo> filterProducts(
             Long categoryId,
